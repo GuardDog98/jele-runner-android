@@ -11,15 +11,25 @@ class Ground {
         -20f, 0f,  0f,
          20f, 0f,  0f,
         -20f, 0f, 200f,
-         20f, 0f, 200f
+         20f, 0f, 200f,
+        -4f, 0.05f, 0f,
+         4f, 0.05f, 0f,
+        -4f, 0.05f, 200f,
+         4f, 0.05f, 200f
     )
 
-    private val indices = shortArrayOf(0,1,2,1,3,2)
-    private val color = floatArrayOf(0.11f, 0.45f, 0.18f, 1f)
+    private val indices = shortArrayOf(
+        0, 1, 2,
+        1, 3, 2,
+        4, 5, 6,
+        5, 7, 6
+    )
+
+    private val color = floatArrayOf(0.12f, 0.50f, 0.22f, 1f)
+    private val laneColor = floatArrayOf(0.27f, 0.27f, 0.27f, 1f)
 
     private val vertexBuffer: FloatBuffer
     private val indexBuffer = ByteBuffer.allocateDirect(indices.size * 2).order(ByteOrder.nativeOrder()).asShortBuffer()
-
     private val vertexStride = 3 * 4
     private var program = 0
     private val modelMatrix = FloatArray(16)
@@ -27,7 +37,6 @@ class Ground {
     init {
         vertexBuffer = ByteBuffer.allocateDirect(vertices.size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer()
         vertexBuffer.put(vertices).position(0)
-
         indexBuffer.put(indices).position(0)
 
         val vShaderCode = """
@@ -69,12 +78,24 @@ class Ground {
         GLES20.glVertexAttribPointer(posHandle, 3, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer)
 
         GLES20.glUniform4fv(colorHandle, 1, color, 0)
-
         val mvp = FloatArray(16)
         Matrix.multiplyMM(mvp, 0, vpMatrix, 0, modelMatrix, 0)
         GLES20.glUniformMatrix4fv(mvpHandle, 1, false, mvp, 0)
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6, GLES20.GL_UNSIGNED_SHORT, indexBuffer)
 
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.size, GLES20.GL_UNSIGNED_SHORT, indexBuffer)
+        // draw middle lane stripes
+        val stripeVertices = floatArrayOf(
+            -0.7f, 0.06f, 0f,
+             0.7f, 0.06f, 0f,
+            -0.7f, 0.06f, 200f,
+             0.7f, 0.06f, 200f
+        )
+
+        val stripeBuffer = ByteBuffer.allocateDirect(stripeVertices.size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer()
+        stripeBuffer.put(stripeVertices).position(0)
+        GLES20.glVertexAttribPointer(posHandle, 3, GLES20.GL_FLOAT, false, vertexStride, stripeBuffer)
+        GLES20.glUniform4fv(colorHandle, 1, laneColor, 0)
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6, GLES20.GL_UNSIGNED_SHORT, indexBuffer)
 
         GLES20.glDisableVertexAttribArray(posHandle)
     }

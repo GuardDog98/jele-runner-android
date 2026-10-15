@@ -7,37 +7,34 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 
-class Cube {
+class Cube(initialColor: FloatArray = floatArrayOf(0.22f, 0.70f, 0.95f, 1f)) {
     private val vertexCoords = floatArrayOf(
-        // X, Y, Z
-        -0.5f,  1.0f,  0.5f, // 0 top-left-front
-         0.5f,  1.0f,  0.5f, // 1 top-right-front
-        -0.5f,  0.0f,  0.5f, // 2 bottom-left-front
-         0.5f,  0.0f,  0.5f, // 3 bottom-right-front
-        -0.5f,  1.0f, -0.5f, // 4 top-left-back
-         0.5f,  1.0f, -0.5f, // 5 top-right-back
-        -0.5f,  0.0f, -0.5f, // 6 bottom-left-back
-         0.5f,  0.0f, -0.5f  // 7 bottom-right-back
+        -0.5f,  1.0f,  0.5f,
+         0.5f,  1.0f,  0.5f,
+        -0.5f,  0.0f,  0.5f,
+         0.5f,  0.0f,  0.5f,
+        -0.5f,  1.0f, -0.5f,
+         0.5f,  1.0f, -0.5f,
+        -0.5f,  0.0f, -0.5f,
+         0.5f,  0.0f, -0.5f
     )
 
     private val drawOrder = shortArrayOf(
-        0, 1, 2, 1, 3, 2, // front
-        4, 5, 6, 5, 7, 6, // back
-        4, 0, 6, 0, 2, 6, // left
-        1, 5, 3, 5, 7, 3, // right
-        4, 5, 0, 5, 1, 0, // top
-        2, 3, 6, 3, 7, 6  // bottom
+        0, 1, 2, 1, 3, 2,
+        4, 5, 6, 5, 7, 6,
+        4, 0, 6, 0, 2, 6,
+        1, 5, 3, 5, 7, 3,
+        4, 5, 0, 5, 1, 0,
+        2, 3, 6, 3, 7, 6
     )
-
-    private val color = floatArrayOf(0.22f, 0.70f, 0.95f, 1f)
 
     private val vertexBuffer: FloatBuffer
     private val indexBuffer: ShortBuffer
-
-    private val vertexStride = 3 * 4 // 3 coords * 4 bytes per float
+    private val vertexStride = 3 * 4
+    private val modelMatrix = FloatArray(16)
+    private var color = initialColor.copyOf()
 
     private var program = 0
-    private val modelMatrix = FloatArray(16)
 
     init {
         vertexBuffer = ByteBuffer.allocateDirect(vertexCoords.size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer()
@@ -74,11 +71,14 @@ class Cube {
         Matrix.setIdentityM(modelMatrix, 0)
     }
 
+    fun setColor(newColor: FloatArray) {
+        color = newColor.copyOf()
+    }
+
     fun setTransform(position: FloatArray, rotationY: Float) {
         Matrix.setIdentityM(modelMatrix, 0)
         Matrix.translateM(modelMatrix, 0, position[0], position[1], position[2])
         Matrix.rotateM(modelMatrix, 0, rotationY, 0f, 1f, 0f)
-        Matrix.scaleM(modelMatrix, 0, 1f, 1f, 1f)
     }
 
     fun draw(vpMatrix: FloatArray) {
@@ -99,7 +99,6 @@ class Cube {
         GLES20.glUniformMatrix4fv(mvpHandle, 1, false, mvp, 0)
 
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.size, GLES20.GL_UNSIGNED_SHORT, indexBuffer)
-
         GLES20.glDisableVertexAttribArray(posHandle)
     }
 
