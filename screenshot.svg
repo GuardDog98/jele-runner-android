@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="320" viewBox="0 0 600 320">
+  <rect width="600" height="320" fill="#0b3150" />
+  <text x="300" y="160" font-size="20" font-family="Arial" fill="#fff" text-anchor="middle">Screenshot placeholder</text>
+  <text x="300" y="190" font-size="14" font-family="Arial" fill="#ddd" text-anchor="middle">Replace docs/screenshot.svg with a game screenshot or GIF</text>
+</svg>
