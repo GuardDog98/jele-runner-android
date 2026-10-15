@@ -25,6 +25,16 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
     private var overlayGameOver: View? = null
     private var tvFinalScore: TextView? = null
 
+    // skins
+    private val skinColors = arrayOf(
+        floatArrayOf(0.22f, 0.70f, 0.95f, 1f), // starter
+        floatArrayOf(0.96f, 0.72f, 0.22f, 1f), // orange
+        floatArrayOf(0.63f, 0.86f, 0.33f, 1f)  // green
+    )
+    private val skinPrices = intArrayOf(0, 15, 30)
+    private var ownedMask = 1
+    private var currentSkin = 0
+
     private val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
     private val vpMatrix = FloatArray(16)
@@ -55,6 +65,13 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
 
         player = Player()
         ground = Ground()
+
+        // load saved progress
+        coinValue = SaveManager.loadCoins(context)
+        currentSkin = SaveManager.loadSkin(context)
+        ownedMask = SaveManager.loadOwned(context)
+        applySkin(currentSkin)
+
         spawnCoins()
         spawnObstacles()
         isGameOver = false
@@ -104,6 +121,7 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
             if (dx < 0.9f && dy < 1.2f && dz < 1.2f) {
                 coin.isAlive = false
                 coinValue += 1
+                SaveManager.saveCoins(context, coinValue)
                 updateHud()
             }
         }
@@ -175,9 +193,10 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
         // reset state
         coins.clear()
         obstacles.clear()
-        coinValue = 0
+        coinValue = SaveManager.loadCoins(context)
         distance = 0f
         player = Player()
+        applySkin(currentSkin)
         spawnCoins()
         spawnObstacles()
         isGameOver = false
@@ -191,5 +210,37 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
             tvFinalScore?.text = "Coins: $coinValue  Distance: ${floor(distance).toInt()}m"
         }
         overlayGameOver?.post { overlayGameOver?.visibility = View.VISIBLE }
+    }
+
+    // Skin/shop API
+    fun buySkin(index: Int): Boolean {
+        if (index < 0 || index >= skinPrices.size) return false
+        val owned = ((ownedMask shr index) and 1) == 1
+        if (owned) {
+            currentSkin = index
+            applySkin(index)
+            SaveManager.saveSkin(context, index)
+            return true
+        }
+
+        val price = skinPrices[index]
+        if (coinValue >= price) {
+            coinValue -= price
+            ownedMask = ownedMask or (1 shl index)
+            currentSkin = index
+            applySkin(index)
+            SaveManager.saveCoins(context, coinValue)
+            SaveManager.saveOwned(context, ownedMask)
+            SaveManager.saveSkin(context, index)
+            updateHud()
+            return true
+        }
+        return false
+    }
+
+    fun applySkin(index: Int) {
+        val safe = index.coerceIn(0, skinColors.size - 1)
+        currentSkin = safe
+        player.setColor(skinColors[safe])
     }
 }
