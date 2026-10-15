@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="Jele Runner is a 3D Android runner prototype built with Kotlin + OpenGL ES. Collect coins, dodge obstacles, and buy skins." />
+  <meta name="description" content="Jele Runner is a 3D Android runner prototype built with Kotlin and OpenGL ES. Collect coins, dodge obstacles, and customize your character." />
   <title>Jele Runner | Android Prototype</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="bg-glow glow-1"></div>
-  <div class="bg-glow glow-2"></div>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
 
   <header class="topbar">
     <div class="brand-wrap">
       <span class="brand-badge">JR</span>
       <span class="brand-text">Jele Runner</span>
     </div>
-    <nav class="nav">
+    <nav class="nav" aria-label="Main navigation">
       <a href="#about">About</a>
       <a href="#features">Features</a>
       <a href="#run">Run</a>
@@ -30,21 +30,47 @@
   <main>
     <section class="hero container">
       <div class="hero-copy">
-        <p class="eyebrow">ANDROID GAME PROTOTYPE</p>
-        <h1>Run, dodge, collect, and win the lane.</h1>
-        <p class="lead">Jele Runner is a compact 3D runner prototype made in Kotlin with OpenGL ES. Collect coins, buy skins, avoid obstacles, and survive as long as you can.</p>
+        <p class="eyebrow">ANDROID ARCADE PROTOTYPE</p>
+        <h1>Run, dodge, collect, and own the lane.</h1>
+        <p class="lead">Jele Runner is a compact 3D endless runner prototype built in Kotlin with OpenGL ES. Collect coins, avoid surprises, buy new skins, and chase bigger scores.</p>
         <div class="cta-row">
           <a class="btn btn-primary" href="https://github.com/GuardDog98/jele-runner-android" target="_blank" rel="noreferrer">View Repo</a>
           <a class="btn btn-secondary" href="https://github.com/GuardDog98/jele-runner-android/stargazers" target="_blank" rel="noreferrer">Star it</a>
         </div>
+        <div class="stats-row">
+          <div><strong>3D</strong><span>Runner</span></div>
+          <div><strong>Android</strong><span>Kotlin</span></div>
+          <div><strong>Coins</strong><span>Shop</span></div>
+        </div>
       </div>
 
-      <div class="hero-visual">
-        <div class="screen-card">
-          <img src="banner.svg" alt="Jele Runner banner" />
-          <div class="hud-mini">
-            <span>Coins: 12</span>
-            <span>Distance: 150m</span>
+      <div class="hero-visual" aria-label="Game preview">
+        <div class="phone-frame">
+          <div class="screen-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+
+          <div class="game-ui">
+            <div class="ui-top">
+              <span>Coins: 12</span>
+              <span>150m</span>
+            </div>
+            <div class="track-area">
+              <div class="lane lane-left"></div>
+              <div class="lane lane-mid"></div>
+              <div class="lane lane-right"></div>
+              <div class="runner"></div>
+              <div class="coin coin-a"></div>
+              <div class="coin coin-b"></div>
+              <div class="obstacle obstacle-a"></div>
+            </div>
+            <div class="ui-bottom">
+              <button class="pad left">◀</button>
+              <button class="pad jump">▲</button>
+              <button class="pad right">▶</button>
+            </div>
           </div>
         </div>
       </div>
@@ -55,49 +81,49 @@
         <p class="eyebrow">ABOUT</p>
         <h2>Playable prototype</h2>
       </div>
-      <p class="text-block">This project was built as a small Android game prototype with a 3D runner feel. The game focuses on smooth lane switching, coin pickups, obstacle avoidance, and a simple skin shop driven by in-game coins.</p>
+      <p class="text-block">Jele Runner is a lightweight mobile prototype focused on the fun loop: move across lanes, collect coins, avoid danger, and unlock visual upgrades. It was designed to feel fast, simple, and satisfying on Android devices.</p>
     </section>
 
     <section id="features" class="features container">
-      <div class="feature-card">
+      <article class="feature-card">
         <span class="feature-icon">🏃</span>
         <h3>Runner gameplay</h3>
-        <p>Lane-based movement with simple jump and dodge mechanics.</p>
-      </div>
-      <div class="feature-card">
+        <p>Simple lane switching and jump mechanics for quick arcade sessions.</p>
+      </article>
+      <article class="feature-card">
         <span class="feature-icon">🪙</span>
-        <h3>Coin system</h3>
-        <p>Collect coins for score and unlock your next skin.</p>
-      </div>
-      <div class="feature-card">
+        <h3>Coin economy</h3>
+        <p>Collect coins, build a score, and use them in the skin shop.</p>
+      </article>
+      <article class="feature-card">
         <span class="feature-icon">🎨</span>
-        <h3>Skin shop</h3>
-        <p>Use earned coins to buy new character colors and styles.</p>
-      </div>
-      <div class="feature-card">
+        <h3>Skins</h3>
+        <p>Unlock new colorways and keep the prototype feeling fresh.</p>
+      </article>
+      <article class="feature-card">
         <span class="feature-icon">🔊</span>
-        <h3>Audio + feedback</h3>
-        <p>Short game sounds and vibration improve the arcade feel.</p>
-      </div>
+        <h3>Audio + haptics</h3>
+        <p>Short sounds and vibration make the experience more alive.</p>
+      </article>
     </section>
 
     <section id="run" class="run-panel container">
       <div class="section-heading">
         <p class="eyebrow">RUN IT</p>
-        <h2>How to launch locally</h2>
+        <h2>Launch locally</h2>
       </div>
       <div class="code-block">
         <pre>git clone https://github.com/GuardDog98/jele-runner-android.git
 cd jele-runner-android
 open in Android Studio</pre>
       </div>
-      <p class="text-block small">Then run the project on an Android emulator or a device with API 29+.</p>
+      <p class="text-block small">Run it on an Android emulator or a device with API 29+.</p>
     </section>
 
     <section class="cta-card container">
       <div>
         <p class="eyebrow">STAR US</p>
-        <h2>If you like the prototype, give it a star.</h2>
+        <h2>If you like the prototype, drop a star.</h2>
       </div>
       <a class="btn btn-primary" href="https://github.com/GuardDog98/jele-runner-android" target="_blank" rel="noreferrer">Star on GitHub</a>
     </section>
