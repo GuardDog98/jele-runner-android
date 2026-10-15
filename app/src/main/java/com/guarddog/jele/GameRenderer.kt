@@ -4,6 +4,9 @@ import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.View
 import android.widget.TextView
 import java.util.Random
@@ -24,6 +27,10 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
     private var overlayStart: View? = null
     private var overlayGameOver: View? = null
     private var tvFinalScore: TextView? = null
+
+    // sound & vibration
+    private var soundManager: SoundManager? = null
+    private val vibrator: Vibrator? = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
 
     // skins
     private val skinColors = arrayOf(
@@ -65,6 +72,9 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
 
         player = Player()
         ground = Ground()
+
+        // init sound manager
+        soundManager = SoundManager(context)
 
         // load saved progress
         coinValue = SaveManager.loadCoins(context)
@@ -123,6 +133,10 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
                 coinValue += 1
                 SaveManager.saveCoins(context, coinValue)
                 updateHud()
+
+                // play coin / jele sound and vibrate shortly
+                soundManager?.playJele()
+                vibrateShort()
             }
         }
 
@@ -135,6 +149,9 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
             if (dx < 0.9f && dy < 1.2f && dz < 1.2f) {
                 // collision -> game over
                 isGameOver = true
+                // play game over sound
+                soundManager?.playJele()
+                vibrateShort()
                 showGameOver()
             }
         }
@@ -152,6 +169,19 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
         cameraPosition[2] = camZ
         cameraLookAt[2] = player.position[2] + 6f
         player.rotationY += 110f * delta
+    }
+
+    private fun vibrateShort() {
+        try {
+            vibrator?.let { v ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    v.vibrate(VibrationEffect.createOneShot(40, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    v.vibrate(40)
+                }
+            }
+        } catch (_: Exception) { }
     }
 
     private fun spawnCoins() {
@@ -182,11 +212,13 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
 
     fun onMoveLeft() { if (!isGameOver) player.moveLeft() }
     fun onMoveRight() { if (!isGameOver) player.moveRight() }
-    fun onJump() { if (!isGameOver) player.jump() }
+    fun onJump() { if (!isGameOver) player.jump(); soundManager?.playJele(); vibrateShort() }
 
     fun startGame() {
         started = true
         isGameOver = false
+        // little start sound
+        soundManager?.playJele()
     }
 
     fun restart() {
