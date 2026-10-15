@@ -1,0 +1,72 @@
+name: Android CI - Build APK
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+    env:
+      JAVA_VERSION: '17'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install prerequisites
+        run: sudo apt-get update && sudo apt-get install -y unzip wget
+
+      - name: Install Android commandline tools & SDK components
+        run: |
+          SDK_ROOT="$HOME/android-sdk"
+          mkdir -p "${SDK_ROOT}/cmdline-tools"
+          cd $HOME
+          # download command line tools (version may be updated by Google; this URL is commonly used)
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
+          unzip -q cmdline.zip -d "${SDK_ROOT}/cmdline-tools"
+          # ensure path structure cmdline-tools/latest
+          if [ -d "${SDK_ROOT}/cmdline-tools/cmdline-tools" ]; then
+            mv "${SDK_ROOT}/cmdline-tools/cmdline-tools" "${SDK_ROOT}/cmdline-tools/latest"
+          fi
+          rm cmdline.zip
+          # export for this step
+          export ANDROID_SDK_ROOT="${SDK_ROOT}"
+          export PATH="${SDK_ROOT}/cmdline-tools/latest/bin:${SDK_ROOT}/platform-tools:${PATH}"
+          # accept licenses and install packages (adjust API levels/build-tools as needed)
+          yes | "${SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --sdk_root="${SDK_ROOT}" "platform-tools" "platforms;android-33" "build-tools;33.0.2" "platforms;android-30"
+          yes | "${SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --sdk_root="${SDK_ROOT}" --licenses || true
+          # persist env & path for following steps
+          echo "ANDROID_SDK_ROOT=${SDK_ROOT}" >> $GITHUB_ENV
+          echo "${SDK_ROOT}/platform-tools" >> $GITHUB_PATH
+          echo "${SDK_ROOT}/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+      - name: Show java / sdk info
+        run: |
+          java -version || true
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          sdkmanager --list --sdk_root="$ANDROID_SDK_ROOT" || true
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Attempt build release (best-effort)
+        continue-on-error: true
+        run: ./gradlew assembleRelease --no-daemon || true
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jele-runner-apks
+          path: app/build/outputs/apk/**/*.apk
