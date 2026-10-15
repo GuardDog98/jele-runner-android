@@ -34,7 +34,89 @@
             android:textColor="#FFD15C"
             android:textSize="18sp"
             android:layout_marginTop="6dp" />
+
+        <TextView
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Distance: 0m"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp" />
     </LinearLayout>
+
+    <!-- Start overlay -->
+    <FrameLayout
+        android:id="@+id/overlayStart"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Jele Runner"
+                android:textSize="36sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:id="@+id/btnStart"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Start" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Game over overlay -->
+    <FrameLayout
+        android:id="@+id/overlayGameOver"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvGameOver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Game Over"
+                android:textSize="32sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tvFinalScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Coins: 0  Distance: 0m"
+                android:textColor="#FFD15C"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:id="@+id/btnRestart"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Restart" />
+        </LinearLayout>
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

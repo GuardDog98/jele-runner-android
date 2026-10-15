@@ -4,19 +4,26 @@ import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.view.View
 import android.widget.TextView
 import java.util.Random
 import kotlin.math.abs
+import kotlin.math.floor
 
 class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
 
     private lateinit var player: Player
     private lateinit var ground: Ground
     private val coins = mutableListOf<Coin>()
+    private val obstacles = mutableListOf<Obstacle>()
     private val random = Random()
 
     private var coinValue = 0
-    private var hudTextView: TextView? = null
+    private var hudCoins: TextView? = null
+    private var hudDistance: TextView? = null
+    private var overlayStart: View? = null
+    private var overlayGameOver: View? = null
+    private var tvFinalScore: TextView? = null
 
     private val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
@@ -26,9 +33,20 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
     private val cameraPosition = floatArrayOf(0f, 5.5f, -11f)
     private val cameraLookAt = floatArrayOf(0f, 0f, 10f)
 
-    fun bindHud(textView: TextView) {
-        hudTextView = textView
+    private var started = false
+    private var isGameOver = false
+    private var distance = 0f
+
+    fun bindHud(coinsView: TextView, distanceView: TextView) {
+        hudCoins = coinsView
+        hudDistance = distanceView
         updateHud()
+    }
+
+    fun bindOverlays(startOverlay: View, gameOverOverlay: View, finalScore: TextView) {
+        this.overlayStart = startOverlay
+        this.overlayGameOver = gameOverOverlay
+        this.tvFinalScore = finalScore
     }
 
     override fun onSurfaceCreated(unused: javax.microedition.khronos.opengles.GL10?, config: javax.microedition.khronos.egl.EGLConfig?) {
@@ -38,6 +56,8 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
         player = Player()
         ground = Ground()
         spawnCoins()
+        spawnObstacles()
+        isGameOver = false
     }
 
     override fun onSurfaceChanged(unused: javax.microedition.khronos.opengles.GL10?, width: Int, height: Int) {
@@ -60,11 +80,18 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
 
         ground.draw(vpMatrix)
         coins.filter { it.isAlive }.forEach { it.draw(vpMatrix) }
+        obstacles.filter { it.isAlive }.forEach { it.draw(vpMatrix) }
         player.draw(vpMatrix)
     }
 
     private fun update(delta: Float) {
+        if (!started || isGameOver) return
+
         player.update(delta)
+
+        // update distance + HUD
+        distance = player.position[2]
+        updateHud()
 
         for (coin in coins) {
             if (!coin.isAlive) continue
@@ -81,10 +108,26 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
             }
         }
 
-        // Spawn a new coin line when player moves forward enough.
-        val farthestNeeded = player.position[2] + 60f
-        if (coins.none { it.position[2] > farthestNeeded && it.isAlive } && coins.count { it.isAlive } < 12) {
+        for (obs in obstacles) {
+            if (!obs.isAlive) continue
+            obs.update(delta)
+            val dx = abs(obs.position[0] - player.position[0])
+            val dy = abs(obs.position[1] - player.position[1])
+            val dz = abs(obs.position[2] - player.position[2])
+            if (dx < 0.9f && dy < 1.2f && dz < 1.2f) {
+                // collision -> game over
+                isGameOver = true
+                showGameOver()
+            }
+        }
+
+        // Spawn more coins/obstacles ahead
+        val farthestNeeded = player.position[2] + 80f
+        if (coins.none { it.position[2] > farthestNeeded && it.isAlive } && coins.count { it.isAlive } < 24) {
             spawnCoins()
+        }
+        if (obstacles.none { it.position[2] > farthestNeeded && it.isAlive } && obstacles.count { it.isAlive } < 8) {
+            spawnObstacles()
         }
 
         val camZ = player.position[2] - 11f
@@ -103,14 +146,50 @@ class GameRenderer(val context: Context) : GLSurfaceView.Renderer {
         }
     }
 
-    private fun updateHud() {
-        val text = "Coins: $coinValue"
-        hudTextView?.post {
-            hudTextView?.text = text
+    private fun spawnObstacles() {
+        for (i in 0..3) {
+            val lane = random.nextInt(3) - 1
+            val x = lane * 3.2f
+            val z = player.position[2] + 30f + i * 22f
+            val obs = Obstacle(x, 0.9f, z)
+            obstacles.add(obs)
         }
     }
 
-    fun onMoveLeft() { player.moveLeft() }
-    fun onMoveRight() { player.moveRight() }
-    fun onJump() { player.jump() }
+    private fun updateHud() {
+        hudCoins?.post { hudCoins?.text = "Coins: $coinValue" }
+        val dist = floor(distance).toInt()
+        hudDistance?.post { hudDistance?.text = "Distance: ${dist}m" }
+    }
+
+    fun onMoveLeft() { if (!isGameOver) player.moveLeft() }
+    fun onMoveRight() { if (!isGameOver) player.moveRight() }
+    fun onJump() { if (!isGameOver) player.jump() }
+
+    fun startGame() {
+        started = true
+        isGameOver = false
+    }
+
+    fun restart() {
+        // reset state
+        coins.clear()
+        obstacles.clear()
+        coinValue = 0
+        distance = 0f
+        player = Player()
+        spawnCoins()
+        spawnObstacles()
+        isGameOver = false
+        started = true
+        overlayGameOver?.post { overlayGameOver?.visibility = View.GONE }
+        updateHud()
+    }
+
+    private fun showGameOver() {
+        tvFinalScore?.post {
+            tvFinalScore?.text = "Coins: $coinValue  Distance: ${floor(distance).toInt()}m"
+        }
+        overlayGameOver?.post { overlayGameOver?.visibility = View.VISIBLE }
+    }
 }
