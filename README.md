@@ -8,8 +8,8 @@ Badges
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Quick links
-
+Quick links:
+https://guarddog98.github.io/jele-runner-android/
 - Repo: https://github.com/GuardDog98/jele-runner-android
 - Playable prototype (Android Studio): open the project in Android Studio and Run
 
