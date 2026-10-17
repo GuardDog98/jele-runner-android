@@ -16,7 +16,7 @@ class Player {
     private var targetX = 0f
 
     private val body = Cube(color)
-
+    @JvmName("applyColor")
     fun setColor(newColor: FloatArray) {
         color = newColor
         body.setColor(newColor)
