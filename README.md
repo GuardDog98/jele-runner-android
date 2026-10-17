@@ -12,7 +12,8 @@ Quick links:
 https://guarddog98.github.io/jele-runner-android/
 - Repo: https://github.com/GuardDog98/jele-runner-android
 - Playable prototype (Android Studio): open the project in Android Studio and Run
-
+## 📥 Download
+[Download latest APK](https://github.com/GuardDog98/jele-runner-android/releases/latest)
 Highlights
 
 - Native Android (Kotlin) with OpenGL ES 2.0 renderer
