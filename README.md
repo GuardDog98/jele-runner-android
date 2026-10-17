@@ -7,7 +7,6 @@ A small, offline 3D runner prototype built with native Android (Kotlin + OpenGL 
 Badges
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Build Debug APK](https://github.com/GuardDog98/jele-runner-android/actions/workflows/android-build.yml/badge.svg)](https://github.com/GuardDog98/jele-runner-android/actions)
 
 Quick links
 
@@ -51,12 +50,6 @@ Build APK (locally)
   # result: app/build/outputs/apk/debug/app-debug.apk
 
 Build APK (GitHub Actions)
-
-A workflow file is prepared to build a debug APK automatically (see `.github/workflows/android-build.yml`). If Actions is enabled, go to the Actions tab and run the "Build Debug APK" workflow. After the job finishes download the artifact named `jele-runner-android-debug-apk`.
-
-Adding the "Jele" sound
-
-Place a WAV file at `app/src/main/res/raw/jele_sound.wav` for the in-game sound. If missing the game will use a short fallback beep.
 
 Contributing
 
