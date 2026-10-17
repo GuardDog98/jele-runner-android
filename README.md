@@ -46,11 +46,6 @@ Build APK (locally)
 - From Android Studio: Build → Build Bundle(s) / APK(s) → Build APK(s).
 - Or from command line (with JDK 17 and Android SDK):
 
-  ./gradlew assembleDebug
-  # result: app/build/outputs/apk/debug/app-debug.apk
-
-Build APK (GitHub Actions)
-
 Contributing
 
 See CONTRIBUTING.md for contribution guidelines.
